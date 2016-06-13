@@ -39,7 +39,7 @@ pm2.connect(err => {
 more example:
 
 ```
-const pm2Desc = require('./index');
+const pm2Desc = require('pm2-describe');
 const pm2 = require('pm2');
 
 let log = function () {
