@@ -8,7 +8,7 @@ function pm2Desc(pm2, descOptions) {
      */
 
     descOptions = descOptions || null;
-    descOptions.descInterval = descOptions.descInterval || 2000;
+    descOptions.descInterval = descOptions.interval || 2000;
     pm2.descOptions = descOptions;
     pm2.descHander = null;
     pm2.errorHandler = null;
