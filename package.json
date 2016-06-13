@@ -1,6 +1,6 @@
 {
   "name": "pm2-describe",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "describe pm2 processes info",
   "main": "index.js",
   "scripts": {
