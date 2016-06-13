@@ -8,116 +8,146 @@ install
 
 `npm install pm2-describe --save`
 
+Before use pm2-describe, you must be conntected with pm2.
+
 basic usage:
 
 ```
-const pm2Desc = require('./index');
-
-let myPm = new pm2Desc({
-    internal: 5000 // unit: ms
+const pm2Desc = require('pm2-describe');                    
+const pm2 = require('pm2');                            
+                                                       
+pm2Desc(pm2, {                                         
+    interval: 2000                                     
+});                                                    
+                                                       
+pm2.connect(err => {                                   
+    if (err) {                                         
+        console.log(err);                              
+    }                                                  
+                                                       
+    pm2                                                
+    .onDescribe(function(list) {                       
+        console.log(list); 
+    })                                                 
+    .descError(function(err) {                         
+        console.log('Error: ', err);       
+    })                                       
+    .descStart();                                
 });
-
-myPm
-.onDescribe(function(list) {
-    console.log(list);
-})
-.error(function(err) {
-    console.log('Error: ', err);
-})
-.start();
-
 ```
 
 more example:
 
 ```
 const pm2Desc = require('./index');
+const pm2 = require('pm2');
 
-let myPm = new pm2Desc({
-    internal: 2000 // unit: ms
+let log = function () {
+    console.log(new Date().getMinutes() + ":" + new Date().getSeconds(), arguments[0]);
+};
+
+pm2Desc(pm2, {
+    interval: 2000
 });
 
-myPm
-.onConnect(function() {
-    console.log('Connected !');
-})
-.onDescribe(function(list) {
-    console.log('Count Processes: ', list.length);
-})
-.error(function(err) {
-    console.log('Error: ', err);
-})
-.start();
+pm2.connect(err => {
+    if (err) {
+        log(err);
+    }
 
-setTimeout(function() {
-    console.log('Pause describe !');
-    myPm.pause();
-}, 4000);
+    pm2
+    .onDescribe(function(list) {
+        log('Count Processes: '+ list.length);
+    })
+    .descError(function(err) {
+        log('Error: '+ err);
+    })
+    .descStart();
 
-setTimeout(function() {
-    console.log('Start it again !');
-    myPm.start();
-}, 7000);
+    setTimeout(function() {
+        log('Clear describe !');
+        pm2.descClear();
+    }, 4000);
 
-setTimeout(function() {
-    console.log('Change onDescribe handler !');
-    myPm.onDescribe(function(list) {
-        console.log('One pm id: ', list[0].pm_id);
-    });
-}, 11000);
+    setTimeout(function() {
+        log('Start it again !');
+        pm2.descStart();
+    }, 7000);
 
-setTimeout(function() {
-    console.log('Reset my internal !');
-    myPm.resetInternal(1000);
-}, 15000);
+    setTimeout(function() {
+        log('Change onDescribe callback !');
+        pm2.onDescribe(function(list) {
+            log('One pm id: '+ list[0].pm_id);
+        });
+    }, 11000);
 
-setTimeout(function() {
-    console.log('Clear myPm !');
-    myPm.clear();
-    console.log('The End');
-}, 19000);
+    setTimeout(function() {
+        log('Reset my interval !');
+        pm2.resetDescInterval(500);
+    }, 14000);
+
+    setTimeout(function() {
+        log('Clear describe !');
+        pm2.descClear();
+        log('The End');
+    }, 17000);
+});
 ```
 
 output:
 
 ```
-Connected !
-Count Processes:  5
-Pause describe !
-Start it again !
-Connected !
-Count Processes:  5
-Change onDescribe handler !
-One pm id:  0
-One pm id:  0
-Reset my internal !
-One pm id:  0
-One pm id:  0
-One pm id:  0
-Clear myPm !
-The End
+4:33 Count Processes: 5
+4:35 Clear describe !
+4:38 Start it again !
+4:40 Count Processes: 5
+4:42 Change onDescribe callback !
+4:42 One pm id: 0
+4:44 One pm id: 0
+4:45 Reset my interval !
+4:45 One pm id: 0
+4:46 One pm id: 0
+4:46 One pm id: 0
+4:47 One pm id: 0
+4:47 One pm id: 0
+4:48 Clear describe !
+4:48 The End
 
 ```
 
-## Options
+## Init
 
-* internal: default 10000
+```
+const pm2Desc = require('pm2-describe');
+const pm2 = require('pm2');
+
+pm2Desc(pm2, {     
+    interval: 2000 
+});                
+```
+
+* pm2: pm2 module, required
+* options
+ * interval: `Number`, unit `ms`, default 2000, optional
 
 ## API
 
-Besides [API of PM2](http://pm2.keymetrics.io/docs/usage/pm2-api/#programmatic-api) :
+Extend [API of PM2](http://pm2.keymetrics.io/docs/usage/pm2-api/#programmatic-api) :
 
 * onDescribe(callback)
-* start()
-* onConnect(callback)
-* pause()
-* clear()
-* resetInternal(internal)
-* error(callback)
+  describe callback
+* descStart(interval) interval: `Number`, optional
+  start describe task
+* descClear()
+  clear describe task
+* resetDescInterval(interval) interval: `Number`, required 
+  change interval and restart task
+* descError(callback)
+  errors
 
 ## Outputs
 
-list should like this:
+`onDescribe` callback list should like this:
 
 ```
 [ { pid: 13418,
