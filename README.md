@@ -134,16 +134,11 @@ pm2Desc(pm2, {
 
 Extend [API of PM2](http://pm2.keymetrics.io/docs/usage/pm2-api/#programmatic-api) :
 
-* onDescribe(callback)
-  describe callback
-* descStart(interval) interval: `Number`, optional
-  start describe task
-* descClear()
-  clear describe task
-* resetDescInterval(interval) interval: `Number`, required 
-  change interval and restart task
-* descError(callback)
-  errors
+* onDescribe(callback) describe callback
+* descStart(interval) interval: `Number`, optional. start describe task
+* descClear() clear describe task
+* resetDescInterval(interval) interval: `Number`, required. change interval and restart task
+* descError(callback) errors
 
 ## Outputs
 
